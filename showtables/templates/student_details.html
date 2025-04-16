@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% load static %}
+    <meta charset="UTF-8">
+    <title>Student Details</title>
+    <link rel="stylesheet" href="{% static 'styles.css' %}">
+</head>
+<body>
+    <div class="dashboard">
+        <h2>Welcome, {{ student.1 }}</h2>
+        <p><strong>Registration Number:</strong> {{ student.0 }}</p>
+        <p><strong>Department:</strong> {{ student.2 }}</p>
+        <p><strong>Email:</strong> {{ student.3 }}</p>
+        <a href="{% url 'index' %}">Logout</a>
+    </div>
+</body>
+</html>

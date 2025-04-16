@@ -1,44 +1,57 @@
-# from django.shortcuts import render
-
-# # Create your views here.
-# from django.http import HttpResponse
-# from django.db import connection
-# from . import forms
-
-
-# def my_custom_sql():
-#     with connection.cursor() as cursor:
-#         cursor.execute("select * from test")
-#         row = cursor.fetchone()
-
-#     return row
-
-
-
-# def index(request):
-#     return HttpResponse(my_custom_sql())
-
-
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.http import HttpResponse
-from django.db import connection
+from django.db import connection, DatabaseError
+from django.contrib import messages  # <-- Import messages framework
 
-def check_credentials(username, password):
-    """ Check if the username and password exist in the database """
+def check_student_login(registration_number, email):
     with connection.cursor() as cursor:
-        cursor.execute("SELECT * FROM student WHERE name = %s AND registration = %s", [username, password])
-        row = cursor.fetchone()
-        print(row)
-    return row is not None  # Returns True if credentials are valid
+        cursor.execute("SELECT * FROM student WHERE registration_number = %s AND email = %s", [registration_number, email])
+        return cursor.fetchone() is not None
+
+def check_faculty_login(faculty_id, email):
+    with connection.cursor() as cursor:
+        cursor.execute("SELECT * FROM faculty WHERE id = %s AND email = %s", [faculty_id, email])
+        return cursor.fetchone() is not None
 
 def index(request):
     if request.method == "POST":
-        username = request.POST.get("username")
-        password = request.POST.get("password")
+        try:
+            user_type = request.POST.get("user_type")
 
-        if check_credentials(username, password):
-            return HttpResponse("Login Successful")
-        else:
-            return HttpResponse("Invalid Credentials")
+            if user_type == "student":
+                reg_no = request.POST.get("reg_no")
+                email = request.POST.get("student_email")
 
-    return render(request, "index.html")  # Render an HTML template
+                if check_student_login(reg_no, email):
+                    with connection.cursor() as cursor:
+                        cursor.execute(
+                            "SELECT registration_number, name, dept_name, email FROM student WHERE registration_number = %s",
+                            [reg_no]
+                        )
+                        student_details = cursor.fetchone()
+                    return render(request, "student_details.html", {"student": student_details})
+                else:
+                    messages.error(request, "Login Unsuccessful")
+                    return redirect("index")
+
+            elif user_type == "faculty":
+                faculty_id = request.POST.get("faculty_id")
+                email = request.POST.get("faculty_email")
+
+                if check_faculty_login(faculty_id, email):
+                    with connection.cursor() as cursor:
+                        cursor.execute(
+                            "SELECT id, name, dept_name, email FROM faculty WHERE id = %s",
+                            [faculty_id]
+                        )
+                        faculty_details = cursor.fetchone()
+                    return render(request, "faculty_dashboard.html", {"faculty": faculty_details})
+                else:
+                    messages.error(request, "Login Unsuccessful")
+                    return redirect("index")
+
+        except DatabaseError:
+            messages.error(request, "Login Unsuccessful")
+            return redirect("index")
+
+    return render(request, "index.html")
