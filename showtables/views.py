@@ -102,4 +102,27 @@ def student_project_dashboard(request, project_name):
     except DatabaseError:
         messages.error(request, "Unable to load project details.")
         return redirect("index")
+def manage_project(request, project_name):
+    try:
+        with connection.cursor() as cursor:
+            # Join `funded_by` with `student_project` to get the department, then get department budget
+            cursor.execute("""
+                SELECT d.dept_name, d.budget
+                FROM department d
+                JOIN student_project sp ON d.dept_name = sp.dept_name
+                JOIN funded_by fb ON fb.studproj_name = sp.studproj_name
+                WHERE sp.studproj_name = %s
+            """, [project_name])
+            
+            project_info = cursor.fetchone()
+
+        return render(request, "manage.html", {
+            "project_name": project_name,
+            "project_info": project_info
+        })
+
+    except DatabaseError:
+        messages.error(request, "Unable to fetch department info.")
+        return redirect("index")
+
 
