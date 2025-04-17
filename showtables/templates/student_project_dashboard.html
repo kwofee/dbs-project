@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% load static %}
+    <meta charset="UTF-8">
+    <title>Student Project Dashboard</title>
+    <link rel="stylesheet" href="{% static 'styles.css' %}">
+</head>
+<body>
+    <div class="dashboard">
+        <h2>Project: {{ project.0 }}</h2>
+        <p><strong>Advisor:</strong> {{ project.1 }}</p>
+
+        <h3>Students in this Project:</h3>
+        <ul>
+            {% for student in students %}
+            <li>{{ student.1 }} ({{ student.0 }}) - {{ student.2 }}</li>
+            {% endfor %}
+        </ul>
+
+        <a href="{% url 'index' %}?reg_no={{ student_reg_no }}">Back to Dashboard</a>
+    </div>
+</body>
+</html>

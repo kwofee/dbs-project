@@ -18,8 +18,8 @@ from django.contrib import admin
 from django.urls import include, path
 
 urlpatterns = [
-    path("polls/", include("polls.urls")),
-    path("showtables/", include("showtables.urls")),
     path("admin/", admin.site.urls),
+    path("showtables/", include("showtables.urls")),  # Include showtables app
+    path("", include("showtables.urls")),  # Redirect root URL to showtables
 ]
 

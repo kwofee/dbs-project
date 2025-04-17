@@ -24,12 +24,24 @@ def index(request):
 
                 if check_student_login(reg_no, email):
                     with connection.cursor() as cursor:
+                        # Fetch student details
                         cursor.execute(
                             "SELECT registration_number, name, dept_name, email FROM student WHERE registration_number = %s",
                             [reg_no]
                         )
                         student_details = cursor.fetchone()
-                    return render(request, "student_details.html", {"student": student_details})
+
+                        # Fetch student project details
+                        cursor.execute(
+                            "SELECT studproj_name FROM works_on WHERE registration_number = %s",
+                            [reg_no]
+                        )
+                        student_project = cursor.fetchone()
+
+                    return render(request, "student_details.html", {
+                        "student": student_details,
+                        "student_project": student_project[0] if student_project else None
+                    })
                 else:
                     messages.error(request, "Login Unsuccessful")
                     return redirect("index")
@@ -55,3 +67,30 @@ def index(request):
             return redirect("index")
 
     return render(request, "index.html")
+
+def student_project_dashboard(request, project_name):
+    try:
+        with connection.cursor() as cursor:
+            # Fetch project details
+            cursor.execute(
+                "SELECT studproj_name, advisor FROM student_project WHERE studproj_name = %s",
+                [project_name]
+            )
+            project_details = cursor.fetchone()
+
+            # Fetch students working on the project
+            cursor.execute(
+                "SELECT s.registration_number, s.name, s.email FROM student s "
+                "JOIN works_on w ON s.registration_number = w.registration_number "
+                "WHERE w.studproj_name = %s",
+                [project_name]
+            )
+            students = cursor.fetchall()
+
+        return render(request, "student_project_dashboard.html", {
+            "project": project_details,
+            "students": students
+        })
+    except DatabaseError:
+        messages.error(request, "Unable to load project details.")
+        return redirect("index")

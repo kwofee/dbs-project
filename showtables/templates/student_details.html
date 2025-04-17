@@ -12,6 +12,14 @@
         <p><strong>Registration Number:</strong> {{ student.0 }}</p>
         <p><strong>Department:</strong> {{ student.2 }}</p>
         <p><strong>Email:</strong> {{ student.3 }}</p>
+
+        {% if student_project %}
+        <p><strong>Student Project:</strong> {{ student_project }}</p>
+        <a href="{% url 'student_project_dashboard' student_project %}">Go to Project Dashboard</a>
+        {% else %}
+        <p><strong>Student Project:</strong> Not Assigned</p>
+        {% endif %}
+
         <a href="{% url 'index' %}">Logout</a>
     </div>
 </body>
