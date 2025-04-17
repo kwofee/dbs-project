@@ -71,26 +71,35 @@ def index(request):
 def student_project_dashboard(request, project_name):
     try:
         with connection.cursor() as cursor:
-            # Fetch project details
+            # Fetch project details along with advisor name
             cursor.execute(
-                "SELECT studproj_name, advisor FROM student_project WHERE studproj_name = %s",
+                """
+                SELECT sp.studproj_name, f.name 
+                FROM student_project sp
+                JOIN faculty f ON sp.advisor = f.id
+                WHERE sp.studproj_name = %s
+                """,
                 [project_name]
             )
             project_details = cursor.fetchone()
 
             # Fetch students working on the project
             cursor.execute(
-                "SELECT s.registration_number, s.name, s.email FROM student s "
-                "JOIN works_on w ON s.registration_number = w.registration_number "
-                "WHERE w.studproj_name = %s",
+                """
+                SELECT s.registration_number, s.name, s.email 
+                FROM student s 
+                JOIN works_on w ON s.registration_number = w.registration_number 
+                WHERE w.studproj_name = %s
+                """,
                 [project_name]
             )
             students = cursor.fetchall()
 
         return render(request, "student_project_dashboard.html", {
-            "project": project_details,
+            "project": project_details,  # project.0 = name, project.1 = advisor name
             "students": students
         })
     except DatabaseError:
         messages.error(request, "Unable to load project details.")
         return redirect("index")
+

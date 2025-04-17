@@ -4,7 +4,58 @@
     {% load static %}
     <meta charset="UTF-8">
     <title>Faculty Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{% static 'styles.css' %}">
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(to right, #c9d6ff, #e2e2e2);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .dashboard {
+            background-color: #ffffff;
+            padding: 2.5rem 3rem;
+            border-radius: 20px;
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.1);
+            width: 480px;
+            text-align: center;
+        }
+
+        h2 {
+            color: #1b262c;
+            margin-bottom: 20px;
+        }
+
+        p {
+            font-size: 15px;
+            color: #333;
+            margin: 12px 0;
+        }
+
+        strong {
+            color: #0f4c75;
+        }
+
+        a {
+            display: inline-block;
+            margin-top: 25px;
+            padding: 10px 20px;
+            background-color: #3282b8;
+            color: white;
+            text-decoration: none;
+            border-radius: 10px;
+            transition: background-color 0.3s ease;
+        }
+
+        a:hover {
+            background-color: #0f4c75;
+        }
+    </style>
 </head>
 <body>
     <div class="dashboard">
