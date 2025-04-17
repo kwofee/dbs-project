@@ -4,7 +4,83 @@
     {% load static %}
     <meta charset="UTF-8">
     <title>Login</title>
-    <link rel="stylesheet" href="{% static 'styles.css' %}">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #74ebd5, #ACB6E5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        form {
+            background-color: #ffffff;
+            padding: 2rem 2.5rem;
+            border-radius: 20px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            width: 350px;
+        }
+
+        h2 {
+            text-align: center;
+            margin-bottom: 1.5rem;
+            color: #333;
+        }
+
+        label {
+            display: block;
+            margin: 0.5rem 0 0.25rem;
+            font-weight: 600;
+            color: #444;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            margin-bottom: 1rem;
+            font-size: 14px;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            background-color: #5b86e5;
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #4776e6;
+        }
+
+        #student_fields, #faculty_fields {
+            margin-bottom: 1rem;
+        }
+
+        ul {
+            background-color: #ffe0e0;
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            list-style-type: none;
+            color: #cc0000;
+        }
+
+        li {
+            margin-bottom: 0.5rem;
+        }
+    </style>
+
     <script>
         function toggleFields() {
             const userType = document.getElementById("user_type").value;
@@ -21,16 +97,18 @@
     </script>
 </head>
 <body>
-    <h2>Login</h2>
-    {% if messages %}
-    <ul>
-        {% for message in messages %}
-            <li>{{ message }}</li>
-        {% endfor %}
-    </ul>
-    {% endif %}
     <form method="POST">
+        <h2>Login</h2>
         {% csrf_token %}
+
+        {% if messages %}
+        <ul>
+            {% for message in messages %}
+                <li>{{ message }}</li>
+            {% endfor %}
+        </ul>
+        {% endif %}
+
         <label for="user_type">Login as:</label>
         <select id="user_type" name="user_type" onchange="toggleFields()">
             <option value="student">Student</option>
