@@ -6,6 +6,7 @@ DROP TABLE IF EXISTS student_project;
 DROP TABLE IF EXISTS student;
 DROP TABLE IF EXISTS faculty;
 DROP TABLE IF EXISTS department;
+DROP TABLE IF EXISTS subsystem;
 
 
 -- create queries
@@ -35,6 +36,16 @@ CREATE TABLE student_project (
     FOREIGN KEY (dept_name) REFERENCES department(dept_name) ON DELETE SET NULL,
     FOREIGN KEY (advisor) REFERENCES faculty(ID) ON DELETE SET NULL
 );
+
+CREATE TABLE subsystem (
+    subsystem_name VARCHAR(100),
+    studproj_name VARCHAR(100),
+    leader_regno INT,  -- Match data type with student.registration_number
+    
+    PRIMARY KEY (subsystem_name, studproj_name),
+    FOREIGN KEY (studproj_name) REFERENCES student_project(studproj_name),
+    FOREIGN KEY (leader_regno) REFERENCES student(registration_number)
+    );
 
 CREATE TABLE works_on (
     registration_number INT,
@@ -379,3 +390,69 @@ INSERT INTO works_on VALUES
 (459, 'Project AUV Manipal'), (461, 'Project AUV Manipal'), (202, 'Project AUV Manipal'),
 (289, 'Project AUV Manipal'), (227, 'Project AUV Manipal'), (404, 'Project AUV Manipal'),
 (418, 'Project AUV Manipal');
+
+
+insert into subsystem values('Electrical', 'Mars Rover Manipal', '210');
+insert into subsystem values('Management', 'Mars Rover Manipal', '221');
+insert into subsystem values('Coding', 'Mars Rover Manipal', '273');
+insert into subsystem values('Research', 'Mars Rover Manipal', '414');
+insert into subsystem values('Mechanical', 'Aero-MIT', '206');
+insert into subsystem values('Electrical', 'Aero-MIT', '280');
+insert into subsystem values('Management', 'Aero-MIT', '327');
+insert into subsystem values('Coding', 'Aero-MIT', '403');
+insert into subsystem values('Research', 'Aero-MIT', '405');
+insert into subsystem values('Research', 'loopMIT', '325');
+insert into subsystem values('Coding', 'loopMIT', '290');
+insert into subsystem values('Management', 'loopMIT', '226');
+insert into subsystem values('Electrical', 'loopMIT', '215');
+insert into subsystem values('Mechanical', 'loopMIT', '212');
+insert into subsystem values('Mechanical', 'Manipal BioMachines', '207');
+insert into subsystem values('Electrical', 'Manipal BioMachines', '208');
+insert into subsystem values('Management', 'Manipal BioMachines', '281');
+insert into subsystem values('Coding', 'Manipal BioMachines', '328');
+insert into subsystem values('Research', 'Manipal BioMachines', '408');
+insert into subsystem values('Mechanical', 'MotoManipal', '209');
+insert into subsystem values('Electrical', 'MotoManipal', '277');
+insert into subsystem values('Management', 'MotoManipal', '278');
+insert into subsystem values('Coding', 'MotoManipal', '413');
+insert into subsystem values('Research', 'MotoManipal', '420');
+insert into subsystem values('Mechanical', 'Parikshit', '203');
+insert into subsystem values('Electrical', 'Parikshit', '217');
+insert into subsystem values('Management', 'Parikshit', '223');
+insert into subsystem values('Coding', 'Parikshit', '283');
+insert into subsystem values('Research', 'Parikshit', '321');
+insert into subsystem values('Mechanical', 'Project AUV Manipal', '202');
+insert into subsystem values('Electrical', 'Project AUV Manipal', '222');
+insert into subsystem values('Management', 'Project AUV Manipal', '227');
+insert into subsystem values('Research', 'Project AUV Manipal', '289');
+insert into subsystem values('Coding', 'Project AUV Manipal', '404');
+insert into subsystem values('Coding', 'Project Kalpana', '220');
+insert into subsystem values('Research', 'Project Kalpana', '274');
+insert into subsystem values('Management', 'Project Kalpana', '323');
+insert into subsystem values('Electrical', 'Project Kalpana', '326');
+insert into subsystem values('Mechanical', 'Project Kalpana', '402');
+insert into subsystem values('Mechanical', 'R.U.G.V.E.D', '221');
+insert into subsystem values('Electrical', 'R.U.G.V.E.D', '218');
+insert into subsystem values('Management', 'R.U.G.V.E.D', '224');
+insert into subsystem values('Research', 'R.U.G.V.E.D', '229');
+insert into subsystem values('Coding', 'R.U.G.V.E.D', '271');
+insert into subsystem values('Mechanical', 'RoboManipal', '204');
+insert into subsystem values('Electrical', 'RoboManipal', '214');
+insert into subsystem values('Research', 'RoboManipal', '228');
+insert into subsystem values('Coding', 'RoboManipal', '282');
+insert into subsystem values('Management', 'RoboManipal', '322');
+insert into subsystem values('Mechanical', 'Team Manipal Racing', '205');
+insert into subsystem values('Electrical', 'Team Manipal Racing', '230');
+insert into subsystem values('Research', 'Team Manipal Racing', '276');
+insert into subsystem values('Coding', 'Team Manipal Racing', '287');
+insert into subsystem values('Management', 'Team Manipal Racing', '419');
+insert into subsystem values('Management', 'ThrustMIT', '213');
+insert into subsystem values('Coding', 'ThrustMIT', '219');
+insert into subsystem values('Electrical', 'ThrustMIT', '225');
+insert into subsystem values('Mechanical', 'ThrustMIT', '279');
+insert into subsystem values('Research', 'ThrustMIT', '286');
+insert into subsystem values('Research', 'Robotics and Circuits', '216');
+insert into subsystem values('Management', 'Robotics and Circuits', '272');
+insert into subsystem values('Electrical', 'Robotics and Circuits', '284');
+insert into subsystem values('Mechanical', 'Robotics and Circuits', '288');
+insert into subsystem values('Coding', 'Robotics and Circuits', '329');

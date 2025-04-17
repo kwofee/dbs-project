@@ -124,5 +124,54 @@ def manage_project(request, project_name):
     except DatabaseError:
         messages.error(request, "Unable to fetch department info.")
         return redirect("index")
+from django.shortcuts import render
+from django.db import connection
+
+from django.shortcuts import render
+from django.db import connection
+
+def student_project_dashboard(request, project_name):
+    # Updated project query to get faculty name
+    project_query = """
+    SELECT sp.studproj_name, f.name AS advisor_name
+    FROM student_project sp
+    JOIN faculty f ON sp.advisor = f.ID
+    WHERE sp.studproj_name = %s
+    """
+
+    # Students in the same department as the project
+    students_query = """
+    SELECT st.registration_number, st.name, st.email
+    FROM student st
+    JOIN student_project sp ON sp.dept_name = st.dept_name
+    WHERE sp.studproj_name = %s
+    """
+
+    # Subsystems and their leaders (updated s.project_name issue)
+    subsystem_query = """
+    SELECT s.subsystem_name, st.name AS leader_name
+    FROM subsystem s
+    JOIN student st ON s.leader_regno = st.registration_number
+    JOIN student_project sp ON s.studproj_name = sp.studproj_name
+    WHERE sp.studproj_name = %s
+    """
+
+    with connection.cursor() as cursor:
+        cursor.execute(project_query, [project_name])
+        project = cursor.fetchone()
+
+        cursor.execute(students_query, [project_name])
+        students = cursor.fetchall()
+
+        cursor.execute(subsystem_query, [project_name])
+        subsystem_info = cursor.fetchall()
+
+    context = {
+        'project': project,
+        'students': students,
+        'subsystem_info': subsystem_info,
+    }
+
+    return render(request, 'student_project_dashboard.html', context)
 
 

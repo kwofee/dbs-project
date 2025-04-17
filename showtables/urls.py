@@ -9,6 +9,8 @@ urlpatterns = [
     path("manage/<str:project_name>/", views.manage_project, name="manage_project"),
 
     path("project/<str:project_name>/manage/", views.manage_project, name="manage_project"),
+    path('student_project/<str:project_id>/', views.student_project_dashboard, name='student_project_dashboard'),
+    path('project/<str:project_id>/', views.student_project_dashboard, name='student_project_dashboard'),
 ]
 
 

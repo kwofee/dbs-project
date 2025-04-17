@@ -92,6 +92,17 @@
             {% endfor %}
         </ul>
 
+        <h3>Subsystem Information:</h3>
+        {% if subsystem_info %}
+            <ul>
+                {% for subsystem in subsystem_info %}
+                    <li><strong>{{ subsystem.0 }}</strong> - Leader: {{ subsystem.1 }}</li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p>No subsystems assigned to this project.</p>
+        {% endif %}
+
         <a href="{% url 'manage_project' project.0 %}">Manage</a>
     </div>
 </body>
