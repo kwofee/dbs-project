@@ -39,7 +39,7 @@
             color: #112d4e;
         }
 
-        a {
+        a, button {
             display: inline-block;
             margin-top: 2rem;
             padding: 10px 22px;
@@ -49,10 +49,36 @@
             border-radius: 12px;
             font-weight: 500;
             transition: background-color 0.3s ease;
+            border: none;
+            cursor: pointer;
         }
 
-        a:hover {
+        a:hover, button:hover {
             background-color: #0f4c75;
+        }
+
+        .message {
+            color: green;
+            margin-top: 1rem;
+            font-weight: 500;
+        }
+
+        .error {
+            color: red;
+            margin-top: 1rem;
+            font-weight: 500;
+        }
+
+        input[type="number"] {
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+            margin-top: 1rem;
+            width: 80%;
+        }
+
+        form {
+            margin-top: 1.5rem;
         }
     </style>
 </head>
@@ -63,6 +89,22 @@
         {% if project_info %}
             <p><strong>Department:</strong> {{ project_info.0 }}</p>
             <p><strong>Department Budget:</strong> ₹{{ project_info.1 }}</p>
+
+            <!-- Fund Request Form -->
+            <form method="post" action="{% url 'submit_fund_request' %}">
+                {% csrf_token %}
+                <input type="hidden" name="project_name" value="{{ project_name }}">
+                <label for="amount"><strong>Request Funds:</strong></label><br>
+                <input type="number" name="amount" min="1" placeholder="Enter amount" required><br>
+                <button type="submit">Request</button>
+            </form>
+
+            <!-- Feedback -->
+            {% if message %}
+                <p class="message">{{ message }}</p>
+            {% elif error %}
+                <p class="error">{{ error }}</p>
+            {% endif %}
         {% else %}
             <p>Project details not found.</p>
         {% endif %}

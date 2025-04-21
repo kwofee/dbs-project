@@ -57,7 +57,12 @@ def index(request):
                             [faculty_id]
                         )
                         faculty_details = cursor.fetchone()
-                    return render(request, "faculty_dashboard.html", {"faculty": faculty_details})
+                        request.session['faculty_id'] = faculty_details[0]
+                        request.session['faculty_name'] = faculty_details[1]
+                        request.session['faculty_department'] = faculty_details[2]
+                        request.session['faculty_email'] = faculty_details[3]
+                        
+                    return redirect('faculty_dashboard')
                 else:
                     messages.error(request, "Login Unsuccessful")
                     return redirect("index")
@@ -67,6 +72,38 @@ def index(request):
             return redirect("index")
 
     return render(request, "index.html")
+
+def faculty_dashboard(request):
+    current_faculty_department = request.session.get('faculty_department')
+
+    # Fetch faculty details from session
+    faculty_id = request.session.get('faculty_id')
+    faculty_name = request.session.get('faculty_name')
+    faculty_department = request.session.get('faculty_department')
+    faculty_email = request.session.get('faculty_email')
+
+    with connection.cursor() as cursor:
+        cursor.execute("SELECT * FROM fund_request WHERE status = %s AND department = %s", ['pending', current_faculty_department])
+        fund_requests = cursor.fetchall()
+
+    return render(request, 'faculty_dashboard.html', {
+        'faculty': {
+            'id': faculty_id,
+            'name': faculty_name,
+            'department': faculty_department,
+            'email': faculty_email
+        },
+        'fund_requests': fund_requests
+    })
+
+
+
+
+
+
+
+
+
 
 def student_project_dashboard(request, project_name):
     try:
@@ -102,10 +139,11 @@ def student_project_dashboard(request, project_name):
     except DatabaseError:
         messages.error(request, "Unable to load project details.")
         return redirect("index")
+from django.views.decorators.csrf import csrf_exempt  # If CSRF token issues happen
+
 def manage_project(request, project_name):
     try:
         with connection.cursor() as cursor:
-            # Join `funded_by` with `student_project` to get the department, then get department budget
             cursor.execute("""
                 SELECT d.dept_name, d.budget
                 FROM department d
@@ -113,8 +151,27 @@ def manage_project(request, project_name):
                 JOIN funded_by fb ON fb.studproj_name = sp.studproj_name
                 WHERE sp.studproj_name = %s
             """, [project_name])
-            
+
             project_info = cursor.fetchone()
+
+        if request.method == "POST":
+            requested_amount = int(request.POST.get("amount"))
+            current_budget = project_info[1]  # d.budget
+
+            if requested_amount <= current_budget:
+                # You could store this request in a table like 'fund_requests'
+                # For now, just show success
+                return render(request, "manage.html", {
+                    "project_name": project_name,
+                    "project_info": project_info,
+                    "message": f"Request for ₹{requested_amount} approved!"
+                })
+            else:
+                return render(request, "manage.html", {
+                    "project_name": project_name,
+                    "project_info": project_info,
+                    "error": "Request denied. Amount exceeds department budget."
+                })
 
         return render(request, "manage.html", {
             "project_name": project_name,
@@ -124,6 +181,7 @@ def manage_project(request, project_name):
     except DatabaseError:
         messages.error(request, "Unable to fetch department info.")
         return redirect("index")
+
 from django.shortcuts import render
 from django.db import connection
 
@@ -131,9 +189,9 @@ from django.shortcuts import render
 from django.db import connection
 
 def student_project_dashboard(request, project_name):
-    # Updated project query to get faculty name
+    # Updated project query to get faculty name and department name
     project_query = """
-    SELECT sp.studproj_name, f.name AS advisor_name
+    SELECT sp.studproj_name, f.name AS advisor_name, sp.dept_name
     FROM student_project sp
     JOIN faculty f ON sp.advisor = f.ID
     WHERE sp.studproj_name = %s
@@ -160,6 +218,10 @@ def student_project_dashboard(request, project_name):
         cursor.execute(project_query, [project_name])
         project = cursor.fetchone()
 
+        if project:
+            # Save department name to session
+            request.session['current_department'] = project[2]  # index 2 is dept_name
+
         cursor.execute(students_query, [project_name])
         students = cursor.fetchall()
 
@@ -167,11 +229,47 @@ def student_project_dashboard(request, project_name):
         subsystem_info = cursor.fetchall()
 
     context = {
-        'project': project,
+        'project': project[:2],  # Only send name and advisor_name to template
         'students': students,
         'subsystem_info': subsystem_info,
     }
 
     return render(request, 'student_project_dashboard.html', context)
+
+
+
+from django.utils import timezone
+
+def submit_fund_request(request):
+    current_department = request.session.get('current_department')
+
+    if request.method == 'POST':
+        reg_no = request.session.get('reg_no')  # assuming you're saving this in session
+        project_name = request.POST.get('project_name')
+        amount = int(request.POST.get('amount'))
+
+        with connection.cursor() as cursor:
+            # Get department budget
+            cursor.execute("""
+                SELECT d.budget
+                FROM department d
+                JOIN funded_by fb ON fb.dept_name = d.dept_name
+                WHERE fb.studproj_name = %s
+            """, [project_name])
+            result = cursor.fetchone()
+
+            if result and amount <= result[0]:
+                cursor.execute("""
+                    INSERT INTO fund_request (student_id, project_name, amount, department)
+                    VALUES (%s, %s, %s, %s)
+                    """, [reg_no, project_name, amount, current_department ])
+                messages.success(request, "Fund request submitted successfully.")
+            else:
+                messages.error(request, "Amount exceeds budget or department not found.")
+
+        return redirect('manage_project', project_name=project_name)
+
+
+
 
 

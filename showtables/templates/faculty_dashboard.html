@@ -22,7 +22,7 @@
             padding: 2.5rem 3rem;
             border-radius: 20px;
             box-shadow: 0 12px 30px rgba(0, 0, 0, 0.1);
-            width: 480px;
+            width: 800px;
             text-align: center;
         }
 
@@ -55,14 +55,54 @@
         a:hover {
             background-color: #0f4c75;
         }
+
+        table {
+            width: 100%;
+            margin-top: 2rem;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 10px;
+            border: 1px solid #bbb;
+        }
+
+        th {
+            background-color: #f1f1f1;
+        }
     </style>
 </head>
 <body>
     <div class="dashboard">
-        <h2>Welcome, {{ faculty.1 }}</h2>
-        <p><strong>Faculty ID:</strong> {{ faculty.0 }}</p>
-        <p><strong>Department:</strong> {{ faculty.2 }}</p>
-        <p><strong>Email:</strong> {{ faculty.3 }}</p>
+        <!-- Display faculty details from session -->
+        <h2>Welcome, {{ faculty.name }}</h2>
+        <p><strong>Faculty ID:</strong> {{ faculty.id }}</p>
+        <p><strong>Department:</strong> {{ faculty.department }}</p>
+        <p><strong>Email:</strong> {{ faculty.email }}</p>
+
+        <!-- Check if there are pending fund requests -->
+        {% if fund_requests %}
+            <h3 style="margin-top: 2rem;">Pending Fund Requests</h3>
+            <table>
+                <tr>
+                    <th>Request ID</th>
+                    <th>Project</th>
+                    <th>Amount</th>
+                    <th>Status</th>
+                </tr>
+                {% for req in fund_requests %}
+                    <tr>
+                        <td>{{ req.0 }}</td>  <!-- req_id -->
+                        <td>{{ req.2 }}</td>  <!-- project_name -->
+                        <td>₹{{ req.3 }}</td> <!-- amount -->
+                        <td>{{ req.4 }}</td>  <!-- status -->
+                    </tr>
+                {% endfor %}
+            </table>
+        {% else %}
+            <p>No pending fund requests for your department.</p>
+        {% endif %}
+
         <a href="{% url 'index' %}">Logout</a>
     </div>
 </body>
