@@ -95,6 +95,30 @@ def faculty_dashboard(request):
         },
         'fund_requests': fund_requests
     })
+from django.db import connection
+from django.shortcuts import redirect
+
+def approve_request(request):
+    if request.method == "POST":
+        request_id = request.POST.get("request_id")
+
+        with connection.cursor() as cursor:
+            cursor.execute("UPDATE fund_request SET status = %s WHERE req_id = %s", ['approved', request_id])
+
+        request.session['approval_message'] = f"Request ID {request_id} approved successfully!"
+
+    return redirect('faculty_dashboard')
+from django.db import connection
+
+def deny_request(request):
+    if request.method == 'POST':
+        req_id = request.POST.get('request_id')
+
+        with connection.cursor() as cursor:
+            cursor.execute("UPDATE fund_request SET status = 'denied' WHERE req_id = %s", [req_id])
+
+        # Redirect back to faculty_dashboard with success message
+        return redirect('faculty_dashboard')  # or use a session/message if needed
 
 
 

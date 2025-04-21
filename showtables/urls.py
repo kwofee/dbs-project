@@ -20,6 +20,9 @@ urlpatterns = [
     #path("approve-request/<int:req_id>/<int:faculty_id>/", approve_fund_request, name="approve_fund_request"),
     #path("reject-request/<int:req_id>/<int:faculty_id>/", reject_fund_request, name="reject_fund_request"),
 
+    path("approve-request/", views.approve_request, name="approve_request"),
+    path('deny-request/', views.deny_request, name='deny_request'),
+
 
 
 ]

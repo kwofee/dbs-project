@@ -62,7 +62,16 @@ CREATE TABLE funded_by (
 );
 
 
-
+CREATE TABLE fund_request (
+         req_id INT PRIMARY KEY AUTO_INCREMENT,
+         student_id INT,
+         project_name VARCHAR(255),
+         amount DECIMAL(10, 2),
+         status VARCHAR(20) DEFAULT 'pending',
+         department VARCHAR(100),
+         request_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+         FOREIGN KEY (student_id) REFERENCES student(registration_number)
+     );
 
 -- Insert into department
 INSERT INTO department (dept_name, budget) VALUES
@@ -456,3 +465,31 @@ insert into subsystem values('Management', 'Robotics and Circuits', '272');
 insert into subsystem values('Electrical', 'Robotics and Circuits', '284');
 insert into subsystem values('Mechanical', 'Robotics and Circuits', '288');
 insert into subsystem values('Coding', 'Robotics and Circuits', '329');
+
+
+--Trigger for automatically updating the department budget
+DELIMITER $$
+
+CREATE TRIGGER decrease_budget_after_approval
+AFTER UPDATE ON fund_request
+FOR EACH ROW
+BEGIN
+    DECLARE v_dept_name VARCHAR(100);
+
+    -- Only proceed if the status is being changed to 'approved'
+    IF NEW.status = 'approved' AND OLD.status != 'approved' THEN
+
+        -- Get the department associated with the project
+        SELECT dept_name INTO v_dept_name
+        FROM student_project
+        WHERE studproj_name = NEW.project_name
+        LIMIT 1;
+
+        -- Deduct the amount from the department budget
+        UPDATE department
+        SET budget = budget - NEW.amount
+        WHERE dept_name = v_dept_name;
+    END IF;
+END$$
+
+DELIMITER ;
