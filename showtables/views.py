@@ -31,6 +31,12 @@ def index(request):
                         )
                         student_details = cursor.fetchone()
 
+                        # Store student details in session
+                        request.session['reg_no'] = student_details[0]
+                        request.session['student_name'] = student_details[1]
+                        request.session['student_department'] = student_details[2]
+                        request.session['student_email'] = student_details[3]
+
                         # Fetch student project details
                         cursor.execute(
                             "SELECT studproj_name FROM works_on WHERE registration_number = %s",
@@ -298,7 +304,12 @@ def submit_fund_request(request):
             else:
                 messages.error(request, "❌ Amount exceeds budget")
 
-        # Redirect to manage_project and pass project_name to it
+        #  Redirect to manage_project and pass project_name to it
         return redirect('manage_project', project_name=project_name)
+
+def logout(request):
+    request.session.flush()
+    messages.info(request, "You have been logged out successfully")
+    return redirect('index')
 
 
