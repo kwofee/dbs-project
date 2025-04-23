@@ -15,6 +15,7 @@ urlpatterns = [
     path("approve-request/", views.approve_request, name="approve_request"),
     path('deny-request/', views.deny_request, name='deny_request'),
     path('logout/', views.logout, name='logout'),
+    path('change-subsystem-head/', views.change_subsystem_head, name='change_subsystem_head'),
 
 
 

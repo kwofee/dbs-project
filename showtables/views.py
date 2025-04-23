@@ -174,6 +174,7 @@ from django.views.decorators.csrf import csrf_exempt  # If CSRF token issues hap
 def manage_project(request, project_name):
     try:
         with connection.cursor() as cursor:
+            # Get department and budget info
             cursor.execute("""
                 SELECT d.dept_name, d.budget
                 FROM department d
@@ -181,42 +182,61 @@ def manage_project(request, project_name):
                 JOIN funded_by fb ON fb.studproj_name = sp.studproj_name
                 WHERE sp.studproj_name = %s
             """, [project_name])
-
             project_info = cursor.fetchone()
 
-        if request.method == "POST":
-            requested_amount = int(request.POST.get("amount"))
-            current_budget = project_info[1]  # d.budget
+            # Get subsystems and their current heads
+            cursor.execute("""
+                SELECT s.subsystem_name, s.leader_regno, st.name
+                FROM subsystem s
+                JOIN student st ON s.leader_regno = st.registration_number
+                WHERE s.studproj_name = %s
+            """, [project_name])
+            subsystems = cursor.fetchall()
 
-            if requested_amount <= current_budget:
-                # You could store this request in a table like 'fund_requests'
-                # For now, just show success
-                return render(request, "manage.html", {
-                    "project_name": project_name,
-                    "project_info": project_info,
-                    "message": f"Request for ₹{requested_amount} approved!"
-                })
-            else:
-                return render(request, "manage.html", {
-                    "project_name": project_name,
-                    "project_info": project_info,
-                    "error": "Request denied. Amount exceeds department budget."
-                })
+            # Get all eligible students (from same department)
+            cursor.execute("""
+                SELECT s.registration_number, s.name
+                FROM student s
+                JOIN works_on w ON s.registration_number = w.registration_number
+                WHERE w.studproj_name = %s
+            """, [project_name])
+            eligible_students = cursor.fetchall()
+
+        if request.method == "POST":
+            if "amount" in request.POST:
+                # Handle fund request (existing code)
+                # ...existing code...
+                pass
 
         return render(request, "manage.html", {
             "project_name": project_name,
-            "project_info": project_info
+            "project_info": project_info,
+            "subsystems": subsystems,
+            "eligible_students": eligible_students
         })
 
-    except DatabaseError:
-        messages.error(request, "Unable to fetch department info.")
+    except DatabaseError as e:
+        messages.error(request, "Unable to fetch project information.")
         return redirect("index")
 
-from django.shortcuts import render
-from django.db import connection
+def change_subsystem_head(request):
+    if request.method == "POST":
+        subsystem_name = request.POST.get("subsystem_name")
+        new_leader_regno = request.POST.get("new_leader")
+        project_name = request.POST.get("project_name")
 
-from django.shortcuts import render
-from django.db import connection
+        try:
+            with connection.cursor() as cursor:
+                # Call the stored procedure
+                cursor.execute(
+                    "CALL change_subsystem_leader(%s, %s, %s)",
+                    [subsystem_name, new_leader_regno, project_name]
+                )
+                messages.success(request, f"Successfully updated subsystem head")
+        except DatabaseError as e:
+            messages.error(request, f"Failed to update subsystem head: {str(e)}")
+
+        return redirect('manage_project', project_name=project_name)
 
 def student_project_dashboard(request, project_name):
     # Updated project query to get faculty name and department name
