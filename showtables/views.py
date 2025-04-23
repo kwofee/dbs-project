@@ -264,11 +264,18 @@ def student_project_dashboard(request, project_name):
 
 from django.utils import timezone
 
+from django.contrib import messages
+from django.shortcuts import redirect
+from django.db import connection
+
+from django.contrib import messages
+from django.shortcuts import redirect
+
 def submit_fund_request(request):
     current_department = request.session.get('current_department')
 
     if request.method == 'POST':
-        reg_no = request.session.get('reg_no')  # assuming you're saving this in session
+        reg_no = request.session.get('reg_no')
         project_name = request.POST.get('project_name')
         amount = int(request.POST.get('amount'))
 
@@ -286,14 +293,12 @@ def submit_fund_request(request):
                 cursor.execute("""
                     INSERT INTO fund_request (student_id, project_name, amount, department)
                     VALUES (%s, %s, %s, %s)
-                    """, [reg_no, project_name, amount, current_department ])
-                messages.success(request, "Fund request submitted successfully.")
+                    """, [reg_no, project_name, amount, current_department])
+                messages.success(request, "✅ Fund request submitted successfully.")
             else:
-                messages.error(request, "Amount exceeds budget or department not found.")
+                messages.error(request, "❌ Amount exceeds budget")
 
+        # Redirect to manage_project and pass project_name to it
         return redirect('manage_project', project_name=project_name)
-
-
-
 
 
