@@ -24,20 +24,17 @@ def index(request):
 
                 if check_student_login(reg_no, email):
                     with connection.cursor() as cursor:
-                        # Fetch student details
+
                         cursor.execute(
                             "SELECT registration_number, name, dept_name, email FROM student WHERE registration_number = %s",
                             [reg_no]
                         )
                         student_details = cursor.fetchone()
 
-                        # Store student details in session
                         request.session['reg_no'] = student_details[0]
                         request.session['student_name'] = student_details[1]
                         request.session['student_department'] = student_details[2]
                         request.session['student_email'] = student_details[3]
-
-                        # Fetch student project details
                         cursor.execute(
                             "SELECT studproj_name FROM works_on WHERE registration_number = %s",
                             [reg_no]
@@ -81,8 +78,6 @@ def index(request):
 
 def faculty_dashboard(request):
     current_faculty_department = request.session.get('faculty_department')
-
-    # Fetch faculty details from session
     faculty_id = request.session.get('faculty_id')
     faculty_name = request.session.get('faculty_name')
     faculty_department = request.session.get('faculty_department')
@@ -122,23 +117,12 @@ def deny_request(request):
 
         with connection.cursor() as cursor:
             cursor.execute("UPDATE fund_request SET status = 'denied' WHERE req_id = %s", [req_id])
-
-        # Redirect back to faculty_dashboard with success message
-        return redirect('faculty_dashboard')  # or use a session/message if needed
-
-
-
-
-
-
-
-
-
+        return redirect('faculty_dashboard')
 
 def student_project_dashboard(request, project_name):
     try:
         with connection.cursor() as cursor:
-            # Fetch project details along with advisor name
+
             cursor.execute(
                 """
                 SELECT sp.studproj_name, f.name 
@@ -150,7 +134,6 @@ def student_project_dashboard(request, project_name):
             )
             project_details = cursor.fetchone()
 
-            # Fetch students working on the project
             cursor.execute(
                 """
                 SELECT s.registration_number, s.name, s.email 
@@ -163,18 +146,18 @@ def student_project_dashboard(request, project_name):
             students = cursor.fetchall()
 
         return render(request, "student_project_dashboard.html", {
-            "project": project_details,  # project.0 = name, project.1 = advisor name
+            "project": project_details,  
             "students": students
         })
     except DatabaseError:
         messages.error(request, "Unable to load project details.")
         return redirect("index")
-from django.views.decorators.csrf import csrf_exempt  # If CSRF token issues happen
+from django.views.decorators.csrf import csrf_exempt  
 
 def manage_project(request, project_name):
     try:
         with connection.cursor() as cursor:
-            # Get department and budget info
+
             cursor.execute("""
                 SELECT d.dept_name, d.budget
                 FROM department d
@@ -184,7 +167,6 @@ def manage_project(request, project_name):
             """, [project_name])
             project_info = cursor.fetchone()
 
-            # Get subsystems and their current heads
             cursor.execute("""
                 SELECT s.subsystem_name, s.leader_regno, st.name
                 FROM subsystem s
@@ -193,7 +175,6 @@ def manage_project(request, project_name):
             """, [project_name])
             subsystems = cursor.fetchall()
 
-            # Get all eligible students (from same department)
             cursor.execute("""
                 SELECT s.registration_number, s.name
                 FROM student s
@@ -204,8 +185,7 @@ def manage_project(request, project_name):
 
         if request.method == "POST":
             if "amount" in request.POST:
-                # Handle fund request (existing code)
-                # ...existing code...
+               
                 pass
 
         return render(request, "manage.html", {
@@ -227,7 +207,7 @@ def change_subsystem_head(request):
 
         try:
             with connection.cursor() as cursor:
-                # Call the stored procedure
+
                 cursor.execute(
                     "CALL change_subsystem_leader(%s, %s, %s)",
                     [subsystem_name, new_leader_regno, project_name]
@@ -239,7 +219,7 @@ def change_subsystem_head(request):
         return redirect('manage_project', project_name=project_name)
 
 def student_project_dashboard(request, project_name):
-    # Updated project query to get faculty name and department name
+
     project_query = """
     SELECT sp.studproj_name, f.name AS advisor_name, sp.dept_name
     FROM student_project sp
@@ -247,7 +227,6 @@ def student_project_dashboard(request, project_name):
     WHERE sp.studproj_name = %s
     """
 
-    # Students in the same department as the project
     students_query = """
     SELECT st.registration_number, st.name, st.email
     FROM student st
@@ -255,7 +234,6 @@ def student_project_dashboard(request, project_name):
     WHERE w.studproj_name = %s
     """
 
-    # Subsystems and their leaders (updated s.project_name issue)
     subsystem_query = """
     SELECT s.subsystem_name, st.name AS leader_name
     FROM subsystem s
@@ -269,8 +247,8 @@ def student_project_dashboard(request, project_name):
         project = cursor.fetchone()
 
         if project:
-            # Save department name to session
-            request.session['current_department'] = project[2]  # index 2 is dept_name
+
+            request.session['current_department'] = project[2] 
 
         cursor.execute(students_query, [project_name])
         students = cursor.fetchall()
@@ -279,7 +257,7 @@ def student_project_dashboard(request, project_name):
         subsystem_info = cursor.fetchall()
 
     context = {
-        'project': project[:2],  # Only send name and advisor_name to template
+        'project': project[:2], 
         'students': students,
         'subsystem_info': subsystem_info,
     }
@@ -306,7 +284,6 @@ def submit_fund_request(request):
         amount = int(request.POST.get('amount'))
 
         with connection.cursor() as cursor:
-            # Get department budget
             cursor.execute("""
                 SELECT d.budget
                 FROM department d
@@ -324,7 +301,6 @@ def submit_fund_request(request):
             else:
                 messages.error(request, "❌ Amount exceeds budget")
 
-        #  Redirect to manage_project and pass project_name to it
         return redirect('manage_project', project_name=project_name)
 
 def logout(request):

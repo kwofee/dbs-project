@@ -182,7 +182,7 @@
             <p><strong>Department:</strong> {{ project_info.0 }}</p>
             <p><strong>Department Budget:</strong> ₹{{ project_info.1 }}</p>
 
-            <!-- Fund Request Form -->
+            
             <form method="post" action="{% url 'submit_fund_request' %}">
                 {% csrf_token %}
                 <input type="hidden" name="project_name" value="{{ project_name }}">
@@ -191,14 +191,14 @@
                 <button type="submit">Request</button>
             </form>
 
-            <!-- Feedback -->
+            
             {% if message %}
                 <p class="message">{{ message }}</p>
             {% elif error %}
                 <p class="error">{{ error }}</p>
             {% endif %}
 
-            <!-- Add this where you want the subsystem management section to appear -->
+            
             <div class="subsystem-management">
                 <h3>Manage Subsystems</h3>
                 <table class="subsystem-table">

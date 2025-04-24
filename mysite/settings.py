@@ -61,25 +61,25 @@ WSGI_APPLICATION = "mysite.wsgi.application"
 
 
 
-DATABASES = {
-    "default": {
-        'ENGINE': 'mysql.connector.django',
-        "OPTIONS": {
-            "read_default_file": "C:\Laya\Semester 4\DBS\project\my.cnf",
-        },
-    }
-}
-
 # DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.mysql',
-#         'NAME': 'dbprojectfinal',
-#         'USER': 'root',
-#         'PASSWORD': '',
-#         'HOST': 'localhost',
-#         'PORT': '3306',
+#     "default": {
+#         'ENGINE': 'mysql.connector.django',
+#         "OPTIONS": {
+#             "read_default_file": "C:\Laya\Semester 4\DBS\project\my.cnf",
+#         },
 #     }
 # }
+
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'dbprojectfinal',
+        'USER': 'root',
+        'PASSWORD': 'siddhivinayak@01',
+        'HOST': 'localhost',
+        'PORT': '3306',
+    }
+}
 AUTH_PASSWORD_VALIDATORS = [
     {
         "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",

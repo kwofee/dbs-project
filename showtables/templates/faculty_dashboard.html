@@ -107,13 +107,12 @@
 </head>
 <body>
     <div class="dashboard">
-        <!-- Display faculty details from session -->
+
         <h2>Welcome, {{ faculty.name }}</h2>
         <p><strong>Faculty ID:</strong> {{ faculty.id }}</p>
         <p><strong>Department:</strong> {{ faculty.department }}</p>
         <p><strong>Email:</strong> {{ faculty.email }}</p>
 
-        <!-- Check if there are pending fund requests -->
         {% if fund_requests %}
             <h3 style="margin-top: 2rem;">Pending Fund Requests</h3>
             {% if message %}
@@ -128,10 +127,10 @@
                 </tr>
                 {% for req in fund_requests %}
                     <tr>
-                        <td>{{ req.0 }}</td>  <!-- req_id -->
-                        <td>{{ req.2 }}</td>  <!-- project_name -->
-                        <td>₹{{ req.3 }}</td> <!-- amount -->
-                        <td>{{ req.4 }}</td>  <!-- status -->
+                        <td>{{ req.0 }}</td>  
+                        <td>{{ req.2 }}</td>  
+                        <td>₹{{ req.3 }}</td> 
+                        <td>{{ req.4 }}</td>  
                     </tr>
                 {% endfor %}
             </table>
