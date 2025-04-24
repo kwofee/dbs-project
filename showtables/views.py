@@ -251,8 +251,8 @@ def student_project_dashboard(request, project_name):
     students_query = """
     SELECT st.registration_number, st.name, st.email
     FROM student st
-    JOIN student_project sp ON sp.dept_name = st.dept_name
-    WHERE sp.studproj_name = %s
+    JOIN works_on w ON st.registration_number = w.registration_number
+    WHERE w.studproj_name = %s
     """
 
     # Subsystems and their leaders (updated s.project_name issue)
